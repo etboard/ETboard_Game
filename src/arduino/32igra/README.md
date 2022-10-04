@@ -1,16 +1,11 @@
 ## ESP32 Flappy Bird Game
-
-
-
-
 | ![Kiku](images/etboard_picture_1_1.jpeg) | ![Kiku](images/etboard_picture_2_1.jpeg) |
 
-
 ### Parts
-- ESP32
-- 128x64 I2C OLED display
-- Buzzer
+- ETboard (ESP32)
+- SSD1306 128x64 I2C OLED display
 - Push button
+- Buzzer (option)
 
 ### Reference
 https://www.hackster.io/arduinob2016/esp32-flappy-bird-game-54391c
