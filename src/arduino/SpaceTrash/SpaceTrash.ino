@@ -252,10 +252,14 @@ U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 
 /* button setup for Arduboy Production */
+/*
 uint8_t pin_up = 3;
 uint8_t pin_down = 4;
 uint8_t pin_fire = 5;
-
+*/
+uint8_t pin_up = D6;
+uint8_t pin_down = D9;
+uint8_t pin_fire = D7;
 
 
 
