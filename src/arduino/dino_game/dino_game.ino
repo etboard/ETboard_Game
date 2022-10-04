@@ -70,9 +70,13 @@ static const unsigned char PROGMEM tree2[]={
 0x03, 0xe0, 0x1f, 0x03, 0xe0
 };
 
+const int buttonPin = D7;     // the number of the pushbutton pin
+
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(115200);
+
+  pinMode(buttonPin, INPUT);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -84,13 +88,16 @@ void setup() {
   display.clearDisplay();
 
   introMessage();
+
+  
   // Run game in loop
   while(1){
-    if (Serial.available()){
-      if(Serial.parseInt()==1){
-        play();
-      }
-    }
+    // 2022.10.04 : SCS          
+    int buttonState = digitalRead(buttonPin);
+    if (buttonState == LOW) {
+      delay(500);
+      play();
+    }    
   }
 }
 
@@ -109,7 +116,8 @@ void introMessage(){
   display.setTextSize(1);
   
   display.setCursor(5,45);
-  display.println("Enter 1 To Play ");
+  // 2022.10.04 : SCS            
+  display.println("Press Button To Play ");
 
   display.display();
 }
@@ -148,7 +156,8 @@ void gameOver(int score=0){
 
   
   display.setCursor(1,45);
-  display.println("Enter 1 To Play Again");
+  // 2022.10.04 : SCS          
+  display.println("Press Button To Play Again");
 
   display.display();
 }
@@ -178,15 +187,20 @@ void play(){
   for(;;){
     display.clearDisplay();
 
-    if (Serial.available()){
-      input_command = Serial.parseInt();
-      
-
-      if(input_command==5){
-        Serial.println("Jump");
-        if(jump==0) jump=1;
-      }
+    // 2022.10.04 : SCS    
+    int buttonState = digitalRead(buttonPin);
+    if (buttonState == LOW) {
+      input_command = 5;
     }
+    else {
+      input_command = 0;
+    }
+
+    if(input_command==5){
+      Serial.println("Jump");
+      if(jump==0) jump=1;
+    }
+
 
     if(jump==1){
       dino_y--;
@@ -243,6 +257,9 @@ void play(){
 
   Serial.println("Game Over");
   gameOver(score);
+  
+  // 2022.10.05 : SCS
+  delay(2000);
 }
 
 void renderScene(int16_t i=0){
