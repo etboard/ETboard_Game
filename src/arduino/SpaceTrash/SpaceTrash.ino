@@ -257,11 +257,12 @@ uint8_t pin_up = 3;
 uint8_t pin_down = 4;
 uint8_t pin_fire = 5;
 */
+// 2022.10.04 : SCS
 uint8_t pin_up = D6;
 uint8_t pin_down = D9;
 uint8_t pin_fire = D7;
 
-
+int vr_sensor = A0;                          // 가변저항 센서
 
 #define ST_FP 4
 
@@ -1680,7 +1681,8 @@ void st_Step(uint8_t player_pos, uint8_t is_auto_fire, uint8_t is_fire)
 
 
 void setup(void) {
-  
+
+  Serial.begin(115200);
   u8g2.begin(); 
   
 }
@@ -1708,7 +1710,7 @@ void loop(void) {
     {
       st_Draw(0);
     } while( u8g2.nextPage() );
-    
+
     if ( digitalRead(pin_down) ) {
       y++;
     }
@@ -1716,5 +1718,20 @@ void loop(void) {
     if ( digitalRead(pin_up) ) {
       y--;
     }
+
+    // 2022.10.04 : SCS
+    int sensor_result = analogRead(vr_sensor);
+    if (sensor_result < (1000+200) ) {
+      y++;
+    } 
+    else 
+    if (sensor_result > (2000-200) ) {
+      y--;
+    }
+    if (y < 70)  y = 70;
+    if (y > 190) y = 190;
+    Serial.println(y);
+    
   }
+  
 }
