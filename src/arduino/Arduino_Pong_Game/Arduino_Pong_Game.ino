@@ -9,8 +9,15 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+/* 
 #define UP_BUTTON 2
 #define DOWN_BUTTON 3
+*/
+// 2022.10.04 : SCS
+#define UP_BUTTON D6
+#define DOWN_BUTTON D9
+
+int vr_sensor = A0;                          // 가변저항 센서
 
 const unsigned long PADDLE_RATE = 33;
 const unsigned long BALL_RATE = 16;
@@ -64,9 +71,21 @@ void loop() {
 
     static bool up_state = false;
     static bool down_state = false;
-    
+
+    /*
     up_state |= (digitalRead(UP_BUTTON) == LOW);
     down_state |= (digitalRead(DOWN_BUTTON) == LOW);
+    */
+
+    // 2022.10.04 : SCS
+    int sensor_result = analogRead(vr_sensor);
+    if (sensor_result < (1000+200) ) {
+      up_state = true;
+    } 
+    else 
+    if (sensor_result > (2000-200) ) {
+      down_state = true;
+    }
 
     if(time > ball_update) {
         uint8_t new_x = ball_x + ball_dir_x;
