@@ -1,6 +1,6 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
-#include <toneAC.h>
+//#include <toneAC.h>
 #include <EEPROM.h>
  
 // DISPLAY SETTINGS
@@ -9,9 +9,15 @@
 #define SCREEN_HEIGHT 64
  
 // Input settings
+/*
 #define FIRE_BUT 6
 #define RIGHT_BUT 5
 #define LEFT_BUT 4
+*/
+
+#define FIRE_BUT D9
+#define RIGHT_BUT D8
+#define LEFT_BUT D7
 
 
 // Mothership
@@ -234,7 +240,9 @@ struct PlayerStruct  {
 
 
 // general global variables
-Adafruit_SSD1306 display(1);
+//Adafruit_SSD1306 display(1);
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
  
 //alien global vars
@@ -292,7 +300,10 @@ bool ShootCompleted=true;                     // stops music when this is false,
 
 void setup() 
 {
-  display.begin(SSD1306_SWITCHCAPVCC,OLED_ADDRESS);
+  Serial.begin(115200);
+  Serial.println("step 1000");
+  //display.begin(SSD1306_SWITCHCAPVCC,OLED_ADDRESS);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   InitAliens(0); 
   InitPlayer();
   
@@ -309,10 +320,12 @@ void setup()
     HiScore=0;
     EEPROM.put(0,HiScore);
   }
+  Serial.println("step 2000");
 }
  
 void loop()  
 {  
+  Serial.println("step 3000");
   //NEW
   if(GameInPlay)
   {
@@ -321,6 +334,8 @@ void loop()
   }
   else  
     AttractScreen();
+
+ Serial.println("step 4000");   
 }
 
  
@@ -372,14 +387,14 @@ unsigned char GetScoreForAlien(int RowNumber)
 
 void MotherShipPhysics()  {
   if(MotherShip.Ord.Status==ACTIVE)  {// spawned, move it
-    toneAC((MotherShip.Ord.X % 8)*500,7,200,true);
+    //toneAC((MotherShip.Ord.X % 8)*500,7,200,true);
     MotherShip.Ord.X+=MotherShipSpeed;
     if(MotherShipSpeed>0)   // going left to right , check if off right hand side
     {
       if(MotherShip.Ord.X>=SCREEN_WIDTH)  
       {
         MotherShip.Ord.Status=DESTROYED;
-        noToneAC();
+        //noToneAC();
       }
     }
     else    // going right to left , check if off left hand side
@@ -387,7 +402,7 @@ void MotherShipPhysics()  {
       if(MotherShip.Ord.X+MOTHERSHIP_WIDTH<0)  
       {
         MotherShip.Ord.Status=DESTROYED;
-        noToneAC();
+        //noToneAC();
       }
     }
     
@@ -424,7 +439,7 @@ void PlayerControl()  {
     Missile.X=Player.Ord.X+(TANKGFX_WIDTH/2);
     Missile.Y=PLAYER_Y_START;
     Missile.Status=ACTIVE;
-    noiseAC(200,10,&ShootCompleted);
+    //noiseAC(200,10,&ShootCompleted);
   }
 }
 
@@ -452,7 +467,7 @@ void AlienControl()
 
     // play background music note if other higher priority sounds not playing
     if((ShootCompleted)&(MotherShip.Ord.Status!=ACTIVE))  {
-      toneAC(Music[MusicIndex],2,100,true);
+      //toneAC(Music[MusicIndex],2,100,true);
       MusicIndex++;
       if(MusicIndex==sizeof(Music))
         MusicIndex=0;
@@ -782,7 +797,7 @@ void PlayerHit()  {
   Player.Ord.Status=EXPLODING;
   Player.ExplosionGfxCounter=PLAYER_EXPLOSION_TIME;
   Missile.Status=DESTROYED;
-  noiseAC(500,10,&PlayerExplosionNoiseCompleted);
+  //noiseAC(500,10,&PlayerExplosionNoiseCompleted);
 }
 
 void CheckCollisions()
@@ -923,7 +938,7 @@ void MissileAndAlienCollisions()
           {
               // missile hit
               Alien[across][down].Ord.Status=EXPLODING;
-              toneAC(700,10,100,true);
+              //toneAC(700,10,100,true);
               Missile.Status=DESTROYED;
               Player.Score+=GetScoreForAlien(down);
               Player.AliensDestroyed++;
@@ -1080,7 +1095,7 @@ void UpdateDisplay()
         if(Alien[across][down].Ord.Status==EXPLODING){
           Alien[across][down].ExplosionGfxCounter--;
           if(Alien[across][down].ExplosionGfxCounter>0)  {
-            toneAC(Alien[across][down].ExplosionGfxCounter*100,10,100,true);
+            //toneAC(Alien[across][down].ExplosionGfxCounter*100,10,100,true);
             display.drawBitmap(Alien[across][down].Ord.X, Alien[across][down].Ord.Y,  ExplosionGfx, 13, 8,WHITE);
           }
           else
@@ -1119,7 +1134,7 @@ void UpdateDisplay()
       for(i=0;i<MOTHERSHIP_WIDTH;i+=2)  {
         display.drawBitmap(MotherShip.Ord.X+i, MotherShip.Ord.Y,  ExplosionGfx, random(4)+2, MOTHERSHIP_HEIGHT,WHITE);
       }
-      toneAC(MotherShip.ExplosionGfxCounter*50,10,100,true);
+      //toneAC(MotherShip.ExplosionGfxCounter*50,10,100,true);
       MotherShip.ExplosionGfxCounter--;
       if(MotherShip.ExplosionGfxCounter==0)  {
         MotherShip.Ord.Status=DESTROYED;
@@ -1179,6 +1194,7 @@ void GameOver()  {
 
 void PlayRewardMusic()
 {
+  /*
   unsigned char Notes[] = { 26, 20, 18, 22, 20, 0, 26, 0, 26 };
   unsigned char NoteDurations[] = { 40, 20, 20, 40, 30, 50, 30, 10,30 };
   for(int i=0;i<9;i++)
@@ -1189,6 +1205,7 @@ void PlayRewardMusic()
     delay(20);                    // small delay between notes
   }
   noToneAC();
+  */
 }
 
 
